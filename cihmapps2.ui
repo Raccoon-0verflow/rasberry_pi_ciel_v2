@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CIhmAppS2</class>
+ <widget class="QMainWindow" name="CIhmAppS2">
+  <property name="geometry">
+   <rect><x>0</x><y>0</y><width>420</width><height>280</height></rect>
+  </property>
+  <property name="windowTitle">
+   <string>Application S2 - Signaux et Slots</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QLabel" name="laTitre">
+    <property name="geometry">
+     <rect><x>50</x><y>15</y><width>320</width><height>25</height></rect>
+    </property>
+    <property name="text">
+     <string>Semaine 2 - Signaux / Slots</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="laLabelPrenom">
+    <property name="geometry">
+     <rect><x>30</x><y>60</y><width>80</width><height>25</height></rect>
+    </property>
+    <property name="text">
+     <string>Prenom :</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lePrenom">
+    <property name="geometry">
+     <rect><x>120</x><y>60</y><width>200</width><height>25</height></rect>
+    </property>
+    <property name="placeholderText">
+     <string>Entrez votre prenom...</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="laLabelCouleur">
+    <property name="geometry">
+     <rect><x>30</x><y>100</y><width>80</width><height>25</height></rect>
+    </property>
+    <property name="text">
+     <string>Couleur :</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="cbCouleur">
+    <property name="geometry">
+     <rect><x>120</x><y>100</y><width>200</width><height>25</height></rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pbValider">
+    <property name="geometry">
+     <rect><x>90</x><y>150</y><width>100</width><height>35</height></rect>
+    </property>
+    <property name="text">
+     <string>Valider</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pbEffacer">
+    <property name="geometry">
+     <rect><x>210</x><y>150</y><width>100</width><height>35</height></rect>
+    </property>
+    <property name="text">
+     <string>Effacer</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="laResultat">
+    <property name="geometry">
+     <rect><x>30</x><y>205</y><width>360</width><height>30</height></rect>
+    </property>
+    <property name="text">
+     <string></string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect><x>0</x><y>0</y><width>420</width><height>22</height></rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

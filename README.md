@@ -18,11 +18,11 @@ Une architecture **POO rigoureuse** est mise en place dès cette semaine pour ga
 ┌─────────────────────────────────────────┐
 │         Commande LED GPIO               │
 │                                         │
-│  [ GPIO : [22 ▼] ]  [ Activer ]        │
+│    [ GPIO : [22 ▼] ]  [ Activer ]       │
 │                                         │
-│         ⚫ LED ETEINTE                   │
+│            ⚫ LED ETEINTE               │
 │                                         │
-│            [ Allumer ]                  │
+│              [ Allumer ]                │
 │                                         │
 └─────────────────────────────────────────┘
 ```
@@ -173,4 +173,4 @@ L'IHM s'affiche mais les appels GPIO sont simulés (pas de matériel).
 
 ---
 
-*BTS CIEL — 2024/2025*
+*BTS CIEL — 2025/2026*

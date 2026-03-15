@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CIhmAppS5</class>
+ <widget class="QMainWindow" name="CIhmAppS5">
+  <property name="geometry">
+   <rect><x>0</x><y>0</y><width>420</width><height>360</height></rect>
+  </property>
+  <property name="windowTitle">
+   <string>Semaine 5 - Capteur SHT20</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QLabel" name="laTitre">
+    <property name="geometry">
+     <rect><x>50</x><y>10</y><width>320</width><height>25</height></rect>
+    </property>
+    <property name="text">
+     <string>Semaine 5 - Capteur SHT20 I2C</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="laLabelTemp">
+    <property name="geometry">
+     <rect><x>30</x><y>55</y><width>120</width><height>25</height></rect>
+    </property>
+    <property name="text">
+     <string>Temperature :</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="laTemperature">
+    <property name="geometry">
+     <rect><x>160</x><y>55</y><width>150</width><height>25</height></rect>
+    </property>
+    <property name="text">
+     <string>-- °C</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="laLabelHumi">
+    <property name="geometry">
+     <rect><x>30</x><y>90</y><width>120</width><height>25</height></rect>
+    </property>
+    <property name="text">
+     <string>Humidite :</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="laHumidite">
+    <property name="geometry">
+     <rect><x>160</x><y>90</y><width>150</width><height>25</height></rect>
+    </property>
+    <property name="text">
+     <string>-- %</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="laLabelSeuil">
+    <property name="geometry">
+     <rect><x>30</x><y>135</y><width>120</width><height>25</height></rect>
+    </property>
+    <property name="text">
+     <string>Seuil (°C) :</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="leSeuil">
+    <property name="geometry">
+     <rect><x>160</x><y>135</y><width>80</width><height>25</height></rect>
+    </property>
+    <property name="text">
+     <string>25</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="laLabelGpio">
+    <property name="geometry">
+     <rect><x>30</x><y>175</y><width>120</width><height>25</height></rect>
+    </property>
+    <property name="text">
+     <string>Broche LED :</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="cbGpio">
+    <property name="geometry">
+     <rect><x>160</x><y>175</y><width>100</width><height>25</height></rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pbActiver">
+    <property name="geometry">
+     <rect><x>275</x><y>175</y><width>100</width><height>25</height></rect>
+    </property>
+    <property name="text">
+     <string>Activer</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pbDemarrer">
+    <property name="geometry">
+     <rect><x>110</x><y>220</y><width>200</width><height>35</height></rect>
+    </property>
+    <property name="text">
+     <string>Demarrer acquisition</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="laLed">
+    <property name="geometry">
+     <rect><x>50</x><y>280</y><width>320</width><height>30</height></rect>
+    </property>
+    <property name="text">
+     <string>LED ETEINTE</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect><x>0</x><y>0</y><width>420</width><height>22</height></rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

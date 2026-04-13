@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CIhmAppS6</class>
+ <widget class="QMainWindow" name="CIhmAppS6">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>460</width>
+    <height>580</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Semaine 6 - SHT20 + Communication TCP</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QLabel" name="laTitre">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>10</y>
+      <width>420</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Semaine 6 — Capteur SHT20 I2C + Communication TCP</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignmentFlag::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="laGroupCapteur">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>44</y>
+      <width>120</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Capteur SHT20</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="laLabelTemp">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>66</y>
+      <width>130</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Temperature :</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="laTemperature">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>66</y>
+      <width>160</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>-- °C</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="laLabelHumi">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>96</y>
+      <width>130</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Humidite :</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="laHumidite">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>96</y>
+      <width>160</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>-- %</string>
+    </property>
+   </widget>
+   <widget class="QFrame" name="line1">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>130</y>
+      <width>420</width>
+      <height>2</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Shape::HLine</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="laGroupSeuils">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>138</y>
+      <width>120</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Seuils temperature</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="laLabelSeuilMin">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>160</y>
+      <width>130</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Seuil Min (°C) :</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="leSeuilMin">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>160</y>
+      <width>80</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>20</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="laLabelSeuilMax">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>192</y>
+      <width>130</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Seuil Max (°C) :</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="leSeuilMax">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>192</y>
+      <width>80</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>30</string>
+    </property>
+   </widget>
+   <widget class="QFrame" name="line2">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>226</y>
+      <width>420</width>
+      <height>2</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Shape::HLine</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="laGroupGpio">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>234</y>
+      <width>120</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Commande LED</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="laLabelGpio">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>256</y>
+      <width>130</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Broche GPIO :</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="cbGpio">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>256</y>
+      <width>100</width>
+      <height>25</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pbActiver">
+    <property name="geometry">
+     <rect>
+      <x>285</x>
+      <y>256</y>
+      <width>120</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Activer GPIO</string>
+    </property>
+   </widget>
+   <widget class="QFrame" name="line3">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>292</y>
+      <width>420</width>
+      <height>2</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Shape::HLine</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="laGroupTcp">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>300</y>
+      <width>160</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Communication TCP</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="laLabelIp">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>322</y>
+      <width>40</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>IP :</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="leIp">
+    <property name="geometry">
+     <rect>
+      <x>75</x>
+      <y>322</y>
+      <width>150</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>192.168.1.100</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="laLabelPort">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>322</y>
+      <width>45</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Port :</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lePort">
+    <property name="geometry">
+     <rect>
+      <x>290</x>
+      <y>322</y>
+      <width>70</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>12345</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pbConnecter">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>358</y>
+      <width>130</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Connecter</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="laStatutTcp">
+    <property name="geometry">
+     <rect>
+      <x>175</x>
+      <y>358</y>
+      <width>260</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Non connecte</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignmentFlag::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QFrame" name="line4">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>398</y>
+      <width>420</width>
+      <height>2</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Shape::HLine</enum>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pbDemarrer">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>410</y>
+      <width>220</width>
+      <height>35</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Demarrer acquisition</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="laLed">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>458</y>
+      <width>420</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>LED ETEINTE</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignmentFlag::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QFrame" name="line5">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>490</y>
+      <width>420</width>
+      <height>2</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Shape::HLine</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="laLabelTrame">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>498</y>
+      <width>420</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Derniere trame :</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="laTrame">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>516</y>
+      <width>420</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>--</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="laCompteur">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>540</y>
+      <width>420</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Trames envoyees : 0  |  Enregistrees CSV : 0</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>460</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
+

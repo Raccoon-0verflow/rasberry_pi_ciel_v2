@@ -21,7 +21,7 @@ Ce dépôt contient l'ensemble des projets développés semaine par semaine dans
 | S4 | [`Semaine_4`](../../tree/Semaine_4) | GPIO, commande LED via sysfs | ✅ Terminé |
 | S5 | [`Semaine_5`](../../tree/Semaine_5) | Capteur I2C SHT20, seuils Min/Max | ✅ Terminé |
 | S6 | [`Semaine_6`](../../tree/Semaine_6) | Communication TCP + sauvegarde CSV | ✅ Terminé |
-| S7 | [`Semaine_7`](../../tree/Semaine_7) | Structuration logicielle | ✅ Terminé |
+| S7 | [`Semaine_7`](../../tree/Semaine_7) | Structuration logicielle | ⏳ À venir |
 | S8 | [`Semaine_8`](../../tree/Semaine_8) | Finalisation + Soutenance | ⏳ À venir |
 
 ---
@@ -42,10 +42,6 @@ Les trois premières semaines couvrent les bases de Qt Creator : création d'une
 
 Première interaction avec le matériel. Une LED est commandée depuis l'IHM Qt via le système de fichiers **sysfs** Linux (`/sys/class/gpio/`). L'utilisateur choisit la broche GPIO dans une liste déroulante, active la broche, puis allume ou éteint la LED avec un bouton.
 
-```
-IHM Qt  →  CGpio (sysfs)  →  LED physique sur GPIO22
-```
-
 **Matériel requis :** LED + résistance 330Ω branchée sur GPIO22 (broche 15).
 
 ---
@@ -55,10 +51,6 @@ IHM Qt  →  CGpio (sysfs)  →  LED physique sur GPIO22
 > Branche : [`Semaine_5`](../../tree/Semaine_5)
 
 Lecture de la **température** et de l'**humidité** depuis le capteur **SHT20** via le protocole **I2C**. La LED est commandée automatiquement selon deux seuils Min/Max réglables en temps réel. Trois états visuels distincts dans l'IHM (vert / orange / rouge).
-
-```
-SHT20 (I2C 0x40)  →  CSht20  →  IHM  →  CGpio  →  LED
-```
 
 **Matériel requis :** capteur SHT20 sur SDA/SCL + LED sur GPIO22 (voir section câblage).
 
@@ -70,12 +62,7 @@ SHT20 (I2C 0x40)  →  CSht20  →  IHM  →  CGpio  →  LED
 
 Ajout d'une couche **communication TCP** : les données du capteur sont envoyées toutes les 2 secondes vers un serveur distant. En parallèle, chaque mesure est sauvegardée dans un **fichier CSV horodaté** sur la Raspberry. L'adresse IP, le port et les seuils sont modifiables en direct sans redémarrer l'application.
 
-```
-SHT20  →  IHM  →  QTcpSocket  →  Serveur TCP distant
-                →  QFile       →  data_YYYYMMDD_HHMMSS.csv
-```
-
-Format CSV :
+Format CSV généré :
 ```
 date;heure;temperature_c;humidite_pct;etat_led
 15/01/2026;14:32:05;24,5;58,2;NORMAL
@@ -87,48 +74,75 @@ date;heure;temperature_c;humidite_pct;etat_led
 
 ## Câblage
 
-### Semaine 4 — LED
+### Semaine 4 — Brancher la LED
 
-| Composant | Borne | → | Raspberry Pi | Broche n° |
-|-----------|-------|---|--------------|-----------|
-| Résistance 330Ω | Patte 1 | → | GPIO22 | **15** |
-| Résistance 330Ω | Patte 2 | → | Anode LED (+, longue patte) | — |
-| LED | Cathode (−, courte patte) | → | GND | **9** |
-
-> ⚠️ La résistance 330Ω est **obligatoire** — sans elle la LED et la Raspberry risquent d'être endommagées.
-> Bandes de couleur : **orange – orange – marron – or**
-
----
-
-### Semaine 5 et 6 — SHT20 + LED
-
-Le câblage de la LED (S4) est conservé. On ajoute le capteur SHT20 :
-
-| Composant | Borne | → | Raspberry Pi | Broche n° |
-|-----------|-------|---|--------------|-----------|
-| SHT20 | VCC | → | 3.3V | **1** |
-| SHT20 | GND | → | GND | **6** |
-| SHT20 | SDA | → | GPIO2 / SDA | **3** |
-| SHT20 | SCL | → | GPIO3 / SCL | **5** |
-| Résistance 330Ω | Patte 1 | → | GPIO22 | **15** |
-| Résistance 330Ω | Patte 2 | → | Anode LED (+) | — |
-| LED | Cathode (−) | → | GND | **9** |
-
-> ⚠️ Brancher le SHT20 sur **3.3V uniquement** — le 5V peut endommager le capteur.
-
----
-
-### Récapitulatif visuel des broches utilisées
+> Une seule LED + une résistance. C'est tout.
 
 ```
-Raspberry Pi — connecteur 40 broches
+RASPBERRY PI                                    COMPOSANTS
+                                               
+  Broche 15 ──────────────────── patte 1 ──[  330Ω  ]── patte 2 ──── Anode (+) ──[LED]
+  (GPIO22)                                  résistance                longue patte
+                                               
+  Broche 9  ──────────────────────────────────────────────────────── Cathode (−)──[LED]
+  (GND)                                                               courte patte
+```
 
- [1]  3.3V  ───────────────── SHT20 VCC
- [3]  GPIO2/SDA ─────────────SHT20 SDA
- [5]  GPIO3/SCL ─────────────SHT20 SCL
- [6]  GND   ───────────────── SHT20 GND
- [9]  GND   ───────────────── LED cathode (−)
-[15]  GPIO22 ──── [330Ω] ──── LED anode (+)
+> ⚠️ **La résistance 330Ω est obligatoire** — sans elle la LED grille et la Raspberry peut être endommagée.
+> Les bandes de couleur de la résistance 330Ω : **orange – orange – marron – or**
+
+---
+
+### Semaine 5 et 6 — Ajouter le capteur SHT20
+
+> On garde le câblage de la LED (S4) et on branche le SHT20 en plus.
+
+```
+RASPBERRY PI                                    CAPTEUR SHT20
+                                               
+  Broche 1  ──────────────────────────────────── VCC   (alimentation)
+  (3.3V)                                        
+                                               
+  Broche 3  ──────────────────────────────────── SDA   (données)
+  (GPIO2)                                       
+                                               
+  Broche 5  ──────────────────────────────────── SCL   (horloge)
+  (GPIO3)                                       
+                                               
+  Broche 6  ──────────────────────────────────── GND   (masse)
+  (GND)                                         
+```
+
+```
+RASPBERRY PI                                    LED  (identique S4)
+
+  Broche 15 ──── patte 1 ──[  330Ω  ]── patte 2 ──── Anode (+) ──[LED]
+  (GPIO22)                résistance                 longue patte
+
+  Broche 9  ──────────────────────────────────────── Cathode (−)──[LED]
+  (GND)                                              courte patte
+```
+
+> ⚠️ **Brancher le SHT20 sur la broche 3.3V uniquement** (broche 1 ou 17).
+> Le brancher sur le 5V peut endommager le capteur définitivement.
+
+---
+
+### Résumé — toutes les connexions en un coup d'œil
+
+```
+RASPBERRY PI 3 — Connecteur 40 broches
+┌─────────────────────────────────────────────────────────────┐
+│                                                             │
+│   Broche  1  (3.3V)  ──────────────────────── SHT20 VCC    │  ← S5, S6
+│   Broche  3  (SDA)   ──────────────────────── SHT20 SDA    │  ← S5, S6
+│   Broche  5  (SCL)   ──────────────────────── SHT20 SCL    │  ← S5, S6
+│   Broche  6  (GND)   ──────────────────────── SHT20 GND    │  ← S5, S6
+│                                                             │
+│   Broche  9  (GND)   ──────────────────────── LED (−)      │  ← S4, S5, S6
+│   Broche 15  (GPIO22)──── [330Ω] ─────────── LED (+)       │  ← S4, S5, S6
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ---

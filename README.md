@@ -11,6 +11,19 @@ Ce dépôt contient l'ensemble des projets développés semaine par semaine dans
 
 ---
 
+## Sommaire
+
+- [Progression du projet](#progression-du-projet)
+- [Aperçu des semaines](#aperçu-des-semaines)
+- [Câblage](#câblage)
+- [Prérequis matériel](#prérequis-matériel)
+- [Installation de l'environnement](#installation-de-lenvironnement)
+- [Récupérer et compiler le code](#récupérer-et-compiler-le-code)
+- [Mode d'emploi par semaine](#mode-demploi-par-semaine)
+- [Résolution des problèmes courants](#résolution-des-problèmes-courants)
+
+---
+
 ## Progression du projet
 
 | Semaine | Branche | Thème | Statut |

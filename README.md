@@ -355,4 +355,4 @@ Durant cette semaine, l'IA **Claude** (Anthropic) a de nouveau été utilisée c
 
 ---
 
-*BTS CIEL — 2024/2025*
+*BTS CIEL — 2025/2026*

@@ -1,42 +1,161 @@
-# Guide d'installation et de compilation — Raspberry Pi
+# Projet Qt / Raspberry Pi — BTS CIEL
 
-> BTS CIEL | Qt / C++ / Raspberry Pi | Guide complet
-
----
-
-## Sommaire
-
-1. [Prérequis matériel](#1-prérequis-matériel)
-2. [Installation de l'environnement](#2-installation-de-lenvironnement)
-3. [Récupérer le code source](#3-récupérer-le-code-source)
-4. [Compiler et lancer chaque projet](#4-compiler-et-lancer-chaque-projet)
-5. [Semaine 4 — Câblage et test de la LED](#5-semaine-4--câblage-et-test-de-la-led)
-6. [Résolution des problèmes courants](#6-résolution-des-problèmes-courants)
+> Projet pédagogique annuel | BTS CIEL | Qt / C++ / Raspberry Pi
+> Année scolaire **2025/2026**
 
 ---
 
-## 1. Prérequis matériel
+## Présentation
 
-- Raspberry Pi 3 (ou compatible)
-- Carte SD avec **Kali Linux** (ou Raspberry Pi OS) installé
-- Connexion internet (WiFi ou câble Ethernet)
-- Ecran + clavier + souris branchés sur la Raspberry
-- **Pour la semaine 4 :** une LED + une résistance 330 ohms + fils de connexion
+Ce dépôt contient l'ensemble des projets développés semaine par semaine dans le cadre du cours **Qt / C++ sur Raspberry Pi**. Chaque semaine est sur une branche Git dédiée. Le projet monte en compétences progressivement : de la première fenêtre Qt jusqu'à une application complète avec capteur I2C, commande GPIO, communication TCP et sauvegarde CSV.
 
 ---
 
-## 2. Installation de l'environnement
+## Progression du projet
 
-### 2.1 Mettre à jour le système
+| Semaine | Branche | Thème | Statut |
+|---------|---------|-------|--------|
+| S1 | [`Semaine_1`](../../tree/Semaine_1) | Découverte Qt Creator, première fenêtre | ✅ Terminé |
+| S2 | [`Semaine_2`](../../tree/Semaine_2) | IHM Qt, signaux/slots | ✅ Terminé |
+| S3 | [`Semaine_3`](../../tree/Semaine_3) | QTimer, acquisition périodique | ✅ Terminé |
+| S4 | [`Semaine_4`](../../tree/Semaine_4) | GPIO, commande LED via sysfs | ✅ Terminé |
+| S5 | [`Semaine_5`](../../tree/Semaine_5) | Capteur I2C SHT20, seuils Min/Max | ✅ Terminé |
+| S6 | [`Semaine_6`](../../tree/Semaine_6) | Communication TCP + sauvegarde CSV | ✅ Terminé |
+| S7 | [`Semaine_7`](../../tree/Semaine_7) | Structuration logicielle | ✅ Terminé |
+| S8 | [`Semaine_8`](../../tree/Semaine_8) | Finalisation + Soutenance | ⏳ À venir |
 
-Ouvre un terminal et tape ces commandes **dans l'ordre** :
+---
+
+## Aperçu des semaines
+
+### Semaines 1, 2, 3 — Bases Qt
+
+> Branches : [`Semaine_1`](../../tree/Semaine_1) · [`Semaine_2`](../../tree/Semaine_2) · [`Semaine_3`](../../tree/Semaine_3)
+
+Les trois premières semaines couvrent les bases de Qt Creator : création d'une première fenêtre, utilisation de Qt Designer, connexion de boutons via les signaux/slots, et mise en place d'un `QTimer` pour exécuter des actions périodiques. Projets simples, sans matériel externe.
+
+---
+
+### Semaine 4 — GPIO et commande LED
+
+> Branche : [`Semaine_4`](../../tree/Semaine_4)
+
+Première interaction avec le matériel. Une LED est commandée depuis l'IHM Qt via le système de fichiers **sysfs** Linux (`/sys/class/gpio/`). L'utilisateur choisit la broche GPIO dans une liste déroulante, active la broche, puis allume ou éteint la LED avec un bouton.
+
+```
+IHM Qt  →  CGpio (sysfs)  →  LED physique sur GPIO22
+```
+
+**Matériel requis :** LED + résistance 330Ω branchée sur GPIO22 (broche 15).
+
+---
+
+### Semaine 5 — Capteur I2C SHT20
+
+> Branche : [`Semaine_5`](../../tree/Semaine_5)
+
+Lecture de la **température** et de l'**humidité** depuis le capteur **SHT20** via le protocole **I2C**. La LED est commandée automatiquement selon deux seuils Min/Max réglables en temps réel. Trois états visuels distincts dans l'IHM (vert / orange / rouge).
+
+```
+SHT20 (I2C 0x40)  →  CSht20  →  IHM  →  CGpio  →  LED
+```
+
+**Matériel requis :** capteur SHT20 sur SDA/SCL + LED sur GPIO22 (voir section câblage).
+
+---
+
+### Semaine 6 — Communication TCP + CSV
+
+> Branche : [`Semaine_6`](../../tree/Semaine_6)
+
+Ajout d'une couche **communication TCP** : les données du capteur sont envoyées toutes les 2 secondes vers un serveur distant. En parallèle, chaque mesure est sauvegardée dans un **fichier CSV horodaté** sur la Raspberry. L'adresse IP, le port et les seuils sont modifiables en direct sans redémarrer l'application.
+
+```
+SHT20  →  IHM  →  QTcpSocket  →  Serveur TCP distant
+                →  QFile       →  data_YYYYMMDD_HHMMSS.csv
+```
+
+Format CSV :
+```
+date;heure;temperature_c;humidite_pct;etat_led
+15/01/2026;14:32:05;24,5;58,2;NORMAL
+```
+
+**Matériel requis :** même câblage que S5 + réseau Wi-Fi ou Ethernet.
+
+---
+
+## Câblage
+
+### Semaine 4 — LED
+
+| Composant | Borne | → | Raspberry Pi | Broche n° |
+|-----------|-------|---|--------------|-----------|
+| Résistance 330Ω | Patte 1 | → | GPIO22 | **15** |
+| Résistance 330Ω | Patte 2 | → | Anode LED (+, longue patte) | — |
+| LED | Cathode (−, courte patte) | → | GND | **9** |
+
+> ⚠️ La résistance 330Ω est **obligatoire** — sans elle la LED et la Raspberry risquent d'être endommagées.
+> Bandes de couleur : **orange – orange – marron – or**
+
+---
+
+### Semaine 5 et 6 — SHT20 + LED
+
+Le câblage de la LED (S4) est conservé. On ajoute le capteur SHT20 :
+
+| Composant | Borne | → | Raspberry Pi | Broche n° |
+|-----------|-------|---|--------------|-----------|
+| SHT20 | VCC | → | 3.3V | **1** |
+| SHT20 | GND | → | GND | **6** |
+| SHT20 | SDA | → | GPIO2 / SDA | **3** |
+| SHT20 | SCL | → | GPIO3 / SCL | **5** |
+| Résistance 330Ω | Patte 1 | → | GPIO22 | **15** |
+| Résistance 330Ω | Patte 2 | → | Anode LED (+) | — |
+| LED | Cathode (−) | → | GND | **9** |
+
+> ⚠️ Brancher le SHT20 sur **3.3V uniquement** — le 5V peut endommager le capteur.
+
+---
+
+### Récapitulatif visuel des broches utilisées
+
+```
+Raspberry Pi — connecteur 40 broches
+
+ [1]  3.3V  ───────────────── SHT20 VCC
+ [3]  GPIO2/SDA ─────────────SHT20 SDA
+ [5]  GPIO3/SCL ─────────────SHT20 SCL
+ [6]  GND   ───────────────── SHT20 GND
+ [9]  GND   ───────────────── LED cathode (−)
+[15]  GPIO22 ──── [330Ω] ──── LED anode (+)
+```
+
+---
+
+## Prérequis matériel
+
+| Composant | Requis à partir de |
+|-----------|-------------------|
+| Raspberry Pi 3 (ou compatible) | S1 |
+| Carte SD + Kali Linux ou Raspberry Pi OS | S1 |
+| Connexion internet (WiFi ou Ethernet) | S1 |
+| Écran + clavier + souris | S1 |
+| LED + résistance 330Ω + fils | S4 |
+| Capteur SHT20 (adresse I2C 0x40) | S5 |
+
+---
+
+## Installation de l'environnement
+
+### Étape 1 — Mettre à jour le système
 
 ```bash
 sudo apt-get update
 sudo apt-get upgrade -y
 ```
 
-> Si tu as des erreurs de clés GPG, tape d'abord :
+> Si tu as des erreurs de clés GPG :
 > ```bash
 > sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys ED65462EC8D5E4C5
 > sudo apt-get update --fix-missing
@@ -44,78 +163,78 @@ sudo apt-get upgrade -y
 
 ---
 
-### 2.2 Installer les outils de compilation
+### Étape 2 — Installer les outils de compilation
 
 ```bash
-sudo apt-get install -y build-essential
-sudo apt-get install -y cmake
-sudo apt-get install -y git
+sudo apt-get install -y build-essential cmake git
 ```
 
-Vérifie que cmake est bien installé :
+Vérification :
 ```bash
-cmake --version
-# Doit afficher : cmake version X.XX.X
+cmake --version   # cmake version 3.XX.X
+g++ --version     # g++ XX.X.X
+git --version     # git version X.XX.X
 ```
 
 ---
 
-### 2.3 Installer Qt5 et ses modules
+### Étape 3 — Installer Qt5
 
 ```bash
-sudo apt-get install -y qt5-default
-sudo apt-get install -y qtbase5-dev
-sudo apt-get install -y qttools5-dev
-sudo apt-get install -y qttools5-dev-tools
+sudo apt-get install -y qt5-default qtbase5-dev qttools5-dev qttools5-dev-tools
+sudo apt-get install -y libqt5widgets5 libqt5gui5 libqt5core5a
 ```
 
 > **Pourquoi Qt5 et pas Qt6 ?**
 > Qt6 n'est pas disponible dans les dépôts Kali Linux sur Raspberry Pi.
 > Qt5 est parfaitement compatible avec tous les projets de ce cours.
 
-Vérifie que Qt est bien installé :
+Vérification :
 ```bash
-qmake --version
-# Doit afficher : QMake version X.X / Using Qt version 5.X.X
+qmake --version   # QMake version X.X / Using Qt version 5.X.X
 ```
 
 ---
 
-### 2.4 Installer le support graphique Qt (interface visuelle)
-
-Pour que les fenêtres Qt s'affichent correctement sur l'écran de la Raspberry :
+### Étape 4 — Installer le support I2C (requis à partir de S5)
 
 ```bash
-sudo apt-get install -y libqt5widgets5
-sudo apt-get install -y libqt5gui5
-sudo apt-get install -y libqt5core5a
+sudo apt-get install -y libi2c-dev i2c-tools
+```
+
+Activer le bus I2C :
+```bash
+sudo modprobe i2c-dev
+echo "i2c-dev" | sudo tee -a /etc/modules
+sudo nano /boot/config.txt   # Ajouter la ligne : dtparam=i2c_arm=on
+sudo reboot
+```
+
+Vérifier que le capteur SHT20 est bien détecté après redémarrage :
+```bash
+sudo i2cdetect -y 1
+# Le capteur doit apparaître à l'adresse 0x40
 ```
 
 ---
 
-### 2.5 Vérification complète de l'installation
+### Récapitulatif des dépendances
 
-```bash
-# Vérifier cmake
-cmake --version
-
-# Vérifier Qt
-qmake --version
-
-# Vérifier le compilateur C++
-g++ --version
-
-# Vérifier git
-git --version
-```
-
-Si toutes ces commandes affichent un numéro de version, l'installation est complète.
+| Paquet | Obligatoire | À partir de | Rôle |
+|--------|-------------|-------------|------|
+| `build-essential` | ✅ | S1 | Compilateur C++ |
+| `cmake` ≥ 3.16 | ✅ | S1 | Système de build |
+| `git` | ✅ | S1 | Cloner le dépôt |
+| `qt5-default` + `qtbase5-dev` | ✅ | S1 | Qt5 |
+| `libqt5widgets5` | ✅ | S1 | Affichage fenêtres |
+| `libi2c-dev` | ✅ | S5 | Communication I2C |
+| `i2c-tools` | ⚙️ Recommandé | S5 | Vérifier le capteur (`i2cdetect`) |
 
 ---
 
-## 3. Récupérer le code source
+## Récupérer et compiler le code
 
-### 3.1 Cloner le dépôt GitHub
+### Cloner le dépôt
 
 ```bash
 cd ~
@@ -123,239 +242,151 @@ git clone https://github.com/viklib/rasberry_pi_ciel.git
 cd rasberry_pi_ciel
 ```
 
-### 3.2 Voir les branches disponibles
+### Voir les branches disponibles
 
 ```bash
 git branch -a
-# Affiche toutes les branches : Semaine_1, Semaine_2, Semaine_3, Semaine_4...
 ```
 
-### 3.3 Changer de branche selon la semaine
+### Changer de branche
 
 ```bash
-# Semaine 1
-git checkout Semaine_1
-
-# Semaine 2
-git checkout Semaine_2
-
-# Semaine 3
-git checkout Semaine_3
-
-# Semaine 4
-git checkout Semaine_4
+git checkout Semaine_1   # ou Semaine_2, Semaine_3, etc.
 ```
 
-### 3.4 Mettre à jour le code (si modifications sur GitHub)
+### Mettre à jour le code
 
 ```bash
-git pull origin Semaine_4
-# Remplace Semaine_4 par la branche souhaitée
+git pull origin Semaine_6   # Remplacer par la branche souhaitée
 ```
 
----
-
-## 4. Compiler et lancer chaque projet
-
-### Méthode universelle (fonctionne pour toutes les semaines)
+### Compiler — méthode universelle
 
 ```bash
-# 1. Aller dans le dossier du projet
 cd ~/rasberry_pi_ciel
-
-# 2. Créer un dossier de compilation propre
-mkdir -p build
-cd build
-
-# 3. Configurer avec cmake
-cmake ..
-
-# 4. Compiler
-make
-
-# 5. Lancer l'application
-./appS1      # Pour la semaine 1
-./appS2      # Pour la semaine 2
-./appS3      # Pour la semaine 3
-./appGpio    # Pour la semaine 4
-```
-
----
-
-### Semaine 1 — appS1
-
-```bash
-git checkout Semaine_1
 mkdir -p build && cd build
 cmake ..
 make
-./appS1
 ```
 
-**Résultat attendu :** Une fenêtre s'ouvre avec un bouton "Afficher un message".
+> Pas besoin de refaire `cmake ..` si tu modifies uniquement des `.cpp` ou `.h`.
+> Refais `cmake ..` uniquement si tu modifies `CMakeLists.txt`.
 
 ---
 
-### Semaine 2 — appS2
+## Mode d'emploi par semaine
+
+### Semaines 1, 2, 3
 
 ```bash
-git checkout Semaine_2
+git checkout Semaine_1   # ou Semaine_2 / Semaine_3
 mkdir -p build && cd build
-cmake ..
-make
-./appS2
+cmake .. && make
+./appS1                  # ou ./appS2 / ./appS3
 ```
-
-**Résultat attendu :** Une fenêtre avec un champ prénom, une liste déroulante et un bouton Valider.
 
 ---
 
-### Semaine 3 — appS3
-
-```bash
-git checkout Semaine_3
-mkdir -p build && cd build
-cmake ..
-make
-./appS3
-```
-
-**Résultat attendu :** Une fenêtre avec un timer configurable et un compteur qui s'incrémente.
-
----
-
-### Semaine 4 — appGpio
+### Semaine 4 — GPIO
 
 ```bash
 git checkout Semaine_4
 mkdir -p build && cd build
-cmake ..
-make
-sudo ./appGpio
-```
-
-> **Important :** Le `sudo` est nécessaire pour accéder aux broches GPIO via sysfs.
-
-**Résultat attendu :** Une fenêtre avec une liste de broches GPIO, un bouton Activer et un bouton Allumer/Eteindre.
-
----
-
-## 5. Semaine 4 — Câblage et test de la LED
-
-### 5.1 Brochage Raspberry Pi (numérotation BCM)
-
-```
-Raspberry Pi 3 — Connecteur GPIO 40 broches
-
- 3.3V  [ 1] [ 2]  5V
- GPIO2 [ 3] [ 4]  5V
- GPIO3 [ 5] [ 6]  GND
- GPIO4 [ 7] [ 8]  GPIO14
-  GND  [ 9] [10]  GPIO15
-GPIO17 [11] [12]  GPIO18
-GPIO27 [13] [14]  GND
-GPIO22 [15] [16]  GPIO23    <-- Broche 15 = GPIO22
-  3.3V [17] [18]  GPIO24
-GPIO10 [19] [20]  GND
- GPIO9 [21] [22]  GPIO25
-GPIO11 [23] [24]  GPIO8
-  GND  [25] [26]  GPIO7
-```
-
----
-
-### 5.2 Câblage de la LED sur GPIO22
-
-```
-Raspberry Pi                    LED
-                                 +
-Broche 15 (GPIO22) ----[330Ω]---|>|---- Broche 9 (GND)
-                    résistance  anode  cathode
-```
-
-**Etapes de câblage :**
-1. Branche la résistance 330 ohms sur la broche **15** (GPIO22) de la Raspberry
-2. Branche l'**anode** (longue patte) de la LED sur l'autre côté de la résistance
-3. Branche la **cathode** (courte patte) de la LED sur la broche **9** (GND)
-
-> **Attention :** Ne jamais brancher une LED sans résistance, cela pourrait endommager la Raspberry Pi.
-
----
-
-### 5.3 Configurer les droits GPIO
-
-Avant de lancer l'application, configure les droits d'accès au système GPIO :
-
-```bash
-sudo chmod 777 /sys/class/gpio/export
-sudo chmod 777 /sys/class/gpio/unexport
-```
-
----
-
-### 5.4 Tester la LED manuellement (sans l'application Qt)
-
-Pour vérifier que le câblage est correct avant de lancer l'IHM :
-
-```bash
-# Exporter la broche GPIO22
-echo "22" | sudo tee /sys/class/gpio/export
-
-# Configurer en sortie
-echo "out" | sudo tee /sys/class/gpio/gpio22/direction
-
-# Allumer la LED
-echo "1" | sudo tee /sys/class/gpio/gpio22/value
-
-# Eteindre la LED
-echo "0" | sudo tee /sys/class/gpio/gpio22/value
-
-# Libérer la broche
-echo "22" | sudo tee /sys/class/gpio/unexport
-```
-
-Si la LED s'allume et s'éteint, le câblage est correct et l'application Qt fonctionnera.
-
----
-
-### 5.5 Lancer et utiliser l'application GPIO
-
-```bash
-cd ~/rasberry_pi_ciel/build
+cmake .. && make
 sudo ./appGpio
 ```
 
 **Utilisation :**
-1. Dans la liste déroulante, sélectionner **22** (ou la broche câblée)
-2. Cliquer sur **Activer** — la broche GPIO est initialisée
-3. Cliquer sur **Allumer** — la LED physique s'allume, le label passe en orange
-4. Cliquer sur **Eteindre** — la LED s'éteint, le label repasse en gris
+1. Sélectionner la broche **22** dans la liste déroulante
+2. Cliquer **Activer** — la broche GPIO est initialisée
+3. Cliquer **Allumer / Eteindre** — la LED physique répond
+
+**Test manuel du câblage avant de lancer :**
+```bash
+echo "22" | sudo tee /sys/class/gpio/export
+echo "out" | sudo tee /sys/class/gpio/gpio22/direction
+echo "1" | sudo tee /sys/class/gpio/gpio22/value    # Allume
+echo "0" | sudo tee /sys/class/gpio/gpio22/value    # Eteint
+echo "22" | sudo tee /sys/class/gpio/unexport
+```
 
 ---
 
-## 6. Résolution des problèmes courants
+### Semaine 5 — Capteur SHT20
 
-### L'application ne se lance pas — "cannot connect to display"
+```bash
+git checkout Semaine_5
+mkdir -p build && cd build
+cmake .. && make
+sudo ./appS5_v3
+```
+
+**Utilisation :**
+1. Vérifier que le capteur est détecté : `sudo i2cdetect -y 1` → doit afficher `40`
+2. Régler les seuils **Min** et **Max** de température dans les champs IHM
+3. Cliquer **Activer GPIO** puis **Demarrer acquisition**
+4. La LED se commande automatiquement selon la température mesurée
+
+---
+
+### Semaine 6 — TCP + CSV
+
+```bash
+git checkout Semaine_6
+mkdir -p build && cd build
+cmake .. && make
+sudo ./appS6_v1
+```
+
+**Utilisation :**
+1. Renseigner l'**IP** du serveur TCP et le **Port** (modifiables sans redémarrer)
+2. Cliquer **Connecter** — le statut passe en vert si le serveur répond
+3. Cliquer **Activer GPIO** puis **Demarrer acquisition**
+4. Les données sont envoyées via TCP **et** enregistrées en CSV automatiquement
+
+**Trouver l'IP de la Raspberry :**
+```bash
+hostname -I
+# ex : 192.168.1.42
+```
+
+**Lancer un serveur TCP de test sur un PC :**
+```bash
+ncat -l 12345
+# ou
+nc -l -p 12345
+```
+
+**Trouver le fichier CSV généré :**
+```bash
+ls ~/rasberry_pi_ciel/build/data_*.csv
+```
+
+---
+
+## Résolution des problèmes courants
+
+### "cannot connect to display"
 
 ```bash
 export DISPLAY=:0
-sudo ./appGpio
+sudo ./appS6_v1
 ```
 
-Ou lance l'application directement depuis le bureau de Kali Linux.
+Lance toujours l'application depuis le bureau graphique de Kali Linux.
 
 ---
 
-### Erreur GPIO — "Permission denied"
+### "Permission denied" sur GPIO
 
 ```bash
 sudo chmod -R 777 /sys/class/gpio/
-sudo ./appGpio
+sudo ./appS6_v1
 ```
 
 ---
 
-### Erreur cmake — "could not find Qt5"
+### "could not find Qt5" lors du cmake
 
 ```bash
 sudo apt-get install -y qt5-default qtbase5-dev
@@ -364,38 +395,65 @@ cmake ..
 
 ---
 
-### La LED ne s'allume pas
-
-Vérifie dans cet ordre :
-1. Le câblage (résistance bien branchée, sens de la LED correct)
-2. La broche sélectionnée dans l'IHM correspond à celle câblée physiquement
-3. Tester manuellement avec les commandes `echo` de la section 5.4
-4. Vérifier que `sudo` est bien utilisé pour lancer l'application
-
----
-
-### Erreur "gpio export already exported"
+### "gpio export already exported"
 
 La broche est déjà exportée d'une session précédente :
-
 ```bash
 echo "22" | sudo tee /sys/class/gpio/unexport
-# Puis relancer l'application
-sudo ./appGpio
+sudo ./appS6_v1
 ```
 
 ---
 
-### Recompiler après une modification du code
+### La LED ne s'allume pas
+
+Vérifier dans l'ordre :
+1. Le câblage — résistance bien branchée, longue patte LED côté GPIO
+2. La broche sélectionnée dans l'IHM correspond à celle câblée physiquement
+3. Tester manuellement avec les commandes `echo` de la section Semaine 4
+4. Vérifier que l'application est lancée avec `sudo`
+
+---
+
+### Le capteur SHT20 n'est pas détecté
+
+```bash
+sudo i2cdetect -y 1
+```
+
+Si `0x40` n'apparaît pas :
+1. Vérifier le câblage SDA (broche 3) et SCL (broche 5)
+2. Vérifier que I2C est activé : `ls /dev/i2c*` doit retourner `/dev/i2c-1`
+3. Si absent : `sudo modprobe i2c-dev` puis réessayer
+4. Vérifier que `dtparam=i2c_arm=on` est dans `/boot/config.txt`
+
+---
+
+### Erreur TCP "Connection timed out"
+
+1. Vérifier que le serveur TCP tourne bien sur la machine cible
+2. Vérifier l'IP et le port saisis dans l'IHM
+3. Vérifier que les deux machines sont sur le même réseau : `ping <ip_du_serveur>`
+4. Pour tester en local sur la Raspberry : utiliser `127.0.0.1` comme IP
+
+---
+
+### Recompiler après modification du code
 
 ```bash
 cd ~/rasberry_pi_ciel/build
 make
-sudo ./appGpio
+sudo ./appS6_v1
 ```
 
-> Pas besoin de refaire `cmake ..` si tu n'as modifié que des fichiers `.cpp` ou `.h`.
-> Refais `cmake ..` uniquement si tu as modifié `CMakeLists.txt`.
+---
+
+### Erreurs de clés GPG lors d'un apt-get update
+
+```bash
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys ED65462EC8D5E4C5
+sudo apt-get update --fix-missing
+```
 
 ---
 

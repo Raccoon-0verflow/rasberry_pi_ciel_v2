@@ -17,15 +17,22 @@ set(PROJECT_SOURCES
         cihmapps5.cpp
         cihmapps5.h
         cihmapps5.ui
+        csht20.cpp
+        csht20.h
+        cgpio.cpp
+        cgpio.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(appS5_v3
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        csht20.h csht20.cpp
-        cgpio.h cgpio.cpp
     )
+else()
+        add_executable(appS5_v3N
+        ${PROJECT_SOURCES}
+    )
+endif()
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET appS5_v3 APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
 #                 ${CMAKE_CURRENT_SOURCE_DIR}/android)

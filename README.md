@@ -1,4 +1,4 @@
-# Semaine 2 — Interface graphique et Signaux/Slots
+# Semaine 2 — Interface graphique et Signaux/Slots 🦝
 
 > Projet pédagogique | BTS CIEL | Qt / C++ / Raspberry Pi
 
@@ -128,4 +128,4 @@ Ouvrir `CMakeLists.txt` dans Qt Creator puis `Ctrl+R`.
 
 ---
 
-*BTS CIEL — 2025/2026*
+*BTS CIEL — 2025/2026 🦝*

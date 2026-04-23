@@ -1,4 +1,4 @@
-# Semaine 4 — Commande GPIO et architecture POO
+# Semaine 4 — Commande GPIO et architecture POO 🦝
 
 > Projet pédagogique | BTS CIEL | Qt / C++ / Raspberry Pi
 
@@ -173,4 +173,4 @@ L'IHM s'affiche mais les appels GPIO sont simulés (pas de matériel).
 
 ---
 
-*BTS CIEL — 2025/2026*
+*BTS CIEL — 2025/2026* 🦝

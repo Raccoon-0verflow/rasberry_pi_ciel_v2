@@ -1,4 +1,4 @@
-# Semaine 1 — Découverte de Qt Creator
+# Semaine 1 — Découverte de Qt Creator 🦝
 
 > Projet pédagogique | BTS CIEL | Qt / C++ / Raspberry Pi
 
@@ -93,4 +93,4 @@ connect(ui->pbMessage, &QPushButton::clicked,
 
 ---
 
-*BTS CIEL — 2025/2026*
+*BTS CIEL — 2025/2026* 🦝

@@ -1,4 +1,4 @@
-# Projet Qt / Raspberry Pi — BTS CIEL
+# Projet Qt / Raspberry Pi — BTS CIEL 🦝
 
 > Projet pédagogique annuel | BTS CIEL | Qt / C++ / Raspberry Pi
 > Année scolaire **2025/2026**
@@ -7,7 +7,9 @@
 
 ## Présentation
 
-Ce dépôt contient l'ensemble des projets développés semaine par semaine dans le cadre du cours **Qt / C++ sur Raspberry Pi**. Chaque semaine est sur une branche Git dédiée. Le projet monte en compétences progressivement : de la première fenêtre Qt jusqu'à une application complète avec capteur I2C, commande GPIO, communication TCP et sauvegarde CSV.
+Ce dépôt contient l'ensemble des projets développés semaine par semaine dans le cadre du cours **Qt / C++ sur Raspberry Pi**. Chaque semaine est sur une branche Git dédiée. Le projet monte en compétences progressivement : de la première fenêtre Qt jusqu'à une application complète avec capteur I2C, commande GPIO, communication TCP, RS232 et sauvegarde CSV.
+
+Le matériel utilisé à partir de la S4 est un **shield pédagogique fait maison**, conçu et soudé en cours, qui se branche directement sur le connecteur GPIO 40 broches de la Raspberry Pi.
 
 ---
 
@@ -15,9 +17,11 @@ Ce dépôt contient l'ensemble des projets développés semaine par semaine dans
 
 - [Progression du projet](#progression-du-projet)
 - [Aperçu des semaines](#aperçu-des-semaines)
-- [Câblage](#câblage)
+- [Le shield — carte d'extension pédagogique](#le-shield--carte-dextension-pédagogique)
+- [Connexion du shield à la Raspberry Pi](#connexion-du-shield-à-la-raspberry-pi)
 - [Prérequis matériel](#prérequis-matériel)
-- [Installation de l'environnement](#installation-de-lenvironnement)
+- [Installation sur Raspberry Pi 3](#installation-sur-raspberry-pi-3)
+- [Installation sur Raspberry Pi 5](#installation-sur-raspberry-pi-5)
 - [Récupérer et compiler le code](#récupérer-et-compiler-le-code)
 - [Mode d'emploi par semaine](#mode-demploi-par-semaine)
 - [Résolution des problèmes courants](#résolution-des-problèmes-courants)
@@ -33,7 +37,7 @@ Ce dépôt contient l'ensemble des projets développés semaine par semaine dans
 | S3 | [`Semaine_3`](../../tree/Semaine_3) | QTimer, acquisition périodique | ✅ Terminé |
 | S4 | [`Semaine_4`](../../tree/Semaine_4) | GPIO, commande LED via sysfs | ✅ Terminé |
 | S5 | [`Semaine_5`](../../tree/Semaine_5) | Capteur I2C SHT20, seuils Min/Max | ✅ Terminé |
-| S6 | [`Semaine_6`](../../tree/Semaine_6) | Communication TCP + sauvegarde CSV | ✅ Terminé |
+| S6 | [`Semaine_6`](../../tree/Semaine_6) | Communication TCP + RS232 + CSV | ✅ Terminé |
 | S7 | [`Semaine_7`](../../tree/Semaine_7) | Structuration logicielle | ✅ Terminé |
 | S8 | [`Semaine_8`](../../tree/Semaine_8) | Finalisation + Soutenance | ⏳ À venir |
 
@@ -53,9 +57,9 @@ Les trois premières semaines couvrent les bases de Qt Creator : création d'une
 
 > Branche : [`Semaine_4`](../../tree/Semaine_4)
 
-Première interaction avec le matériel. Une LED est commandée depuis l'IHM Qt via le système de fichiers **sysfs** Linux (`/sys/class/gpio/`). L'utilisateur choisit la broche GPIO dans une liste déroulante, active la broche, puis allume ou éteint la LED avec un bouton.
+Première interaction avec le matériel. La LED **D1** du shield est commandée depuis l'IHM Qt via le système de fichiers **sysfs** Linux (`/sys/class/gpio/`). L'utilisateur choisit la broche GPIO dans une liste déroulante, active la broche, puis allume ou éteint la LED avec un bouton.
 
-**Matériel requis :** LED + résistance 330Ω branchée sur GPIO22 (broche 15).
+**Composant utilisé sur le shield :** LED D1 sur GPIO22.
 
 ---
 
@@ -63,99 +67,105 @@ Première interaction avec le matériel. Une LED est commandée depuis l'IHM Qt 
 
 > Branche : [`Semaine_5`](../../tree/Semaine_5)
 
-Lecture de la **température** et de l'**humidité** depuis le capteur **SHT20** via le protocole **I2C**. La LED est commandée automatiquement selon deux seuils Min/Max réglables en temps réel. Trois états visuels distincts dans l'IHM (vert / orange / rouge).
+Lecture de la **température** et de l'**humidité** depuis le capteur **SHT20** du shield via le protocole **I2C**. La LED est commandée automatiquement selon deux seuils Min/Max réglables en temps réel. Trois états visuels distincts dans l'IHM (vert / orange / rouge).
 
-**Matériel requis :** capteur SHT20 sur SDA/SCL + LED sur GPIO22 (voir section câblage).
+**Composants utilisés sur le shield :** SHT20 (I2C `0x40`) + LED D1.
 
 ---
 
-### Semaine 6 — Communication TCP + CSV
+### Semaine 6 — Communication TCP + RS232 + CSV
 
 > Branche : [`Semaine_6`](../../tree/Semaine_6)
 
-Ajout d'une couche **communication TCP** : les données du capteur sont envoyées toutes les 2 secondes vers un serveur distant. En parallèle, chaque mesure est sauvegardée dans un **fichier CSV horodaté** sur la Raspberry. L'adresse IP, le port et les seuils sont modifiables en direct sans redémarrer l'application.
+Ajout de **deux canaux de communication simultanés** : les données du capteur sont envoyées toutes les 2 secondes via **TCP** (réseau) et via **RS232** (port DB9 du shield, géré par le MAX232). En parallèle, chaque mesure est sauvegardée dans un **fichier CSV horodaté**. Tous les paramètres sont modifiables en direct sans redémarrer.
 
-Format CSV généré :
+```
+SHT20  →  IHM  →  QTcpSocket   →  Serveur TCP (réseau)
+                →  QSerialPort  →  Port DB9 / MAX232 (câble série)
+                →  QFile        →  data_YYYYMMDD_HHMMSS.csv
+```
+
+Format CSV :
 ```
 date;heure;temperature_c;humidite_pct;etat_led
 15/01/2026;14:32:05;24,5;58,2;NORMAL
 ```
 
-**Matériel requis :** même câblage que S5 + réseau Wi-Fi ou Ethernet.
+**Composants utilisés sur le shield :** SHT20 + LED D1 + MAX232 + port DB9.
 
 ---
 
-## Câblage
+## Le shield — carte d'extension pédagogique
 
-### Semaine 4 — Brancher la LED
+Le shield est une carte PCB conçue et soudée en cours. Elle se connecte directement sur le connecteur GPIO 40 broches de la Raspberry Pi via une nappe 26 fils.
 
-> Une seule LED + une résistance. C'est tout.
+### Composants du shield
+
+| Référence | Composant | Protocole | Rôle | Utilisé en |
+|-----------|-----------|-----------|------|------------|
+| U1 (CMS) | **SHT20** | I2C — `0x40` | Capteur température + humidité | S5, S6 |
+| U2 (CMS) | **TC72** | SPI | Capteur température secondaire | À venir |
+| U3 | **MAX232** | UART | Convertisseur RS232 pour le port DB9 | S6 |
+| J4 | **Afficheur LCD** | I2C (grove) | Ecran d'affichage (câble grove 5cm) | — |
+| J3 | **Port DB9** | RS232 | Connecteur série vers PC ou équipement | S6 |
+| J1 | **Nappe GPIO** | — | Connexion à la Raspberry (26 broches) | S4+ |
+| SW1 | **Bouton poussoir** | GPIO | Entrée numérique | — |
+| D2 | **LED jaune** | — | Témoin présence 3.3V | S4+ |
+| D1 | **LED commandée** | GPIO22 | LED pilotée par l'application Qt | S4+ |
+| FU1 | **Fusible** | — | Protection alimentation | — |
+
+### Vérifications après mise sous tension
+
+Avant de lancer la moindre application, vérifier que la carte fonctionne :
 
 ```
-RASPBERRY PI                                    COMPOSANTS
-                                               
-  Broche 15 ──────────────────── patte 1 ──[  330Ω  ]── patte 2 ──── Anode (+) ──[LED]
-  (GPIO22)                                  résistance                longue patte
-                                               
-  Broche 9  ──────────────────────────────────────────────────────── Cathode (−)──[LED]
-  (GND)                                                               courte patte
+✅ La LED jaune D2 doit s'allumer → présence du 3.3V confirmée
+✅ Broche 2 (VS+) du MAX232 ≈ +9.1V → mesurer au multimètre
+✅ Broche 6 (VS-) du MAX232 ≈ -8.7V → mesurer au multimètre
 ```
 
-> ⚠️ **La résistance 330Ω est obligatoire** — sans elle la LED grille et la Raspberry peut être endommagée.
-> Les bandes de couleur de la résistance 330Ω : **orange – orange – marron – or**
+Vérifier la présence des composants I2C sur le bus :
+```bash
+sudo i2cdetect -y 1
+```
+
+**5 adresses doivent apparaître :**
+- `0x40` → SHT20 (capteur température/humidité)
+- 4 autres adresses → afficheur LCD I2C (grove)
+
+Si `0x40` n'apparaît pas, voir la section [résolution des problèmes](#résolution-des-problèmes-courants).
 
 ---
 
-### Semaine 5 et 6 — Ajouter le capteur SHT20
+## Connexion du shield à la Raspberry Pi
 
-> On garde le câblage de la LED (S4) et on branche le SHT20 en plus.
+Le shield se connecte via une **nappe 26 fils** sur les broches 1 à 26 du connecteur GPIO.
 
-```
-RASPBERRY PI                                    CAPTEUR SHT20
-                                               
-  Broche 1  ──────────────────────────────────── VCC   (alimentation)
-  (3.3V)                                        
-                                               
-  Broche 3  ──────────────────────────────────── SDA   (données)
-  (GPIO2)                                       
-                                               
-  Broche 5  ──────────────────────────────────── SCL   (horloge)
-  (GPIO3)                                       
-                                               
-  Broche 6  ──────────────────────────────────── GND   (masse)
-  (GND)                                         
-```
+> ⚠️ **Le sens de la nappe est important !**
+> Le **fil rouge** (broche 1) doit être côté **broche 1 de la Raspberry** (3.3V, marquée d'un carré sur le PCB).
+> Brancher à l'envers risque d'alimenter des GPIO en 5V → destruction possible.
 
 ```
-RASPBERRY PI                                    LED  (identique S4)
-
-  Broche 15 ──── patte 1 ──[  330Ω  ]── patte 2 ──── Anode (+) ──[LED]
-  (GPIO22)                résistance                 longue patte
-
-  Broche 9  ──────────────────────────────────────── Cathode (−)──[LED]
-  (GND)                                              courte patte
-```
-
-> ⚠️ **Brancher le SHT20 sur la broche 3.3V uniquement** (broche 1 ou 17).
-> Le brancher sur le 5V peut endommager le capteur définitivement.
-
----
-
-### Résumé — toutes les connexions en un coup d'œil
-
-```
-RASPBERRY PI 3 — Connecteur 40 broches
-┌─────────────────────────────────────────────────────────────┐
-│                                                             │
-│   Broche  1  (3.3V)  ──────────────────────── SHT20 VCC     │  ← S5, S6
-│   Broche  3  (SDA)   ──────────────────────── SHT20 SDA     │  ← S5, S6
-│   Broche  5  (SCL)   ──────────────────────── SHT20 SCL     │  ← S5, S6
-│   Broche  6  (GND)   ──────────────────────── SHT20 GND     │  ← S5, S6
-│                                                             │
-│   Broche  9  (GND)   ──────────────────────── LED (−)       │  ← S4, S5, S6
-│   Broche 15  (GPIO22)──── [330Ω] ─────────── LED (+)        │  ← S4, S5, S6
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
+RASPBERRY PI — Connecteur 40 broches         SHIELD (nappe 26 fils)
+┌──────────────────────────────────────────────────────────────┐
+│                                                              │
+│  Broche  1  (3.3V)  ───────────────────────  SHT20 VCC      │
+│  Broche  3  (SDA)   ───────────────────────  SHT20 SDA      │  ← I2C
+│  Broche  5  (SCL)   ───────────────────────  SHT20 SCL      │  ← I2C
+│  Broche  6  (GND)   ───────────────────────  SHT20 GND      │
+│                                                              │
+│  Broche  8  (TX)    ───────────────────────  MAX232 entrée   │  ← UART→RS232
+│  Broche 10  (RX)    ───────────────────────  MAX232 sortie   │  ← UART→RS232
+│                                                              │
+│  Broche 15  (GPIO22)───────────────────────  LED D1          │  ← GPIO
+│                                                              │
+│  Broche 19  (MOSI)  ───────────────────────  TC72 SDI        │  ← SPI
+│  Broche 21  (MISO)  ───────────────────────  TC72 SDO        │  ← SPI
+│  Broche 23  (SCLK)  ───────────────────────  TC72 CLK        │  ← SPI
+│  Broche 24  (CE0)   ───────────────────────  TC72 CS         │  ← SPI
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+        ↑ nappe branchée broches 1 à 26 uniquement
 ```
 
 ---
@@ -164,18 +174,19 @@ RASPBERRY PI 3 — Connecteur 40 broches
 
 | Composant | Requis à partir de |
 |-----------|-------------------|
-| Raspberry Pi 3 (ou compatible) | S1 |
-| Carte SD + Kali Linux ou Raspberry Pi OS | S1 |
+| Raspberry Pi 3 ou 5 | S1 |
+| Carte SD + Raspberry Pi OS (Bookworm recommandé) | S1 |
 | Connexion internet (WiFi ou Ethernet) | S1 |
 | Écran + clavier + souris | S1 |
-| LED + résistance 330Ω + fils | S4 |
-| Capteur SHT20 (adresse I2C 0x40) | S5 |
+| Shield pédagogique (carte faite maison) | S4 |
+| Nappe 26 fils pour connexion shield ↔ Raspberry | S4 |
+| Câble DB9 ou câble console (pour RS232) | S6 |
 
 ---
 
-## Installation de l'environnement
+## Installation sur Raspberry Pi 3
 
-### Étape 1 — Mettre à jour le système
+### Étape 1 — Mettre à jour le système 🦝
 
 ```bash
 sudo apt-get update
@@ -190,7 +201,7 @@ sudo apt-get upgrade -y
 
 ---
 
-### Étape 2 — Installer les outils de compilation
+### Étape 2 — Outils de compilation
 
 ```bash
 sudo apt-get install -y build-essential cmake git
@@ -210,11 +221,13 @@ git --version     # git version X.XX.X
 ```bash
 sudo apt-get install -y qt5-default qtbase5-dev qttools5-dev qttools5-dev-tools
 sudo apt-get install -y libqt5widgets5 libqt5gui5 libqt5core5a
+sudo apt-get install -y libqt5serialport5-dev   # Module RS232 (S6)
 ```
 
-> **Pourquoi Qt5 et pas Qt6 ?**
-> Qt6 n'est pas disponible dans les dépôts Kali Linux sur Raspberry Pi.
-> Qt5 est parfaitement compatible avec tous les projets de ce cours.
+> Si `qt5-default` est introuvable (Debian Bullseye+) :
+> ```bash
+> sudo apt-get install -y qtbase5-dev qtbase5-dev-tools qt5-qmake
+> ```
 
 Vérification :
 ```bash
@@ -223,7 +236,7 @@ qmake --version   # QMake version X.X / Using Qt version 5.X.X
 
 ---
 
-### Étape 4 — Installer le support I2C (requis à partir de S5)
+### Étape 4 — Support I2C (requis à partir de S5)
 
 ```bash
 sudo apt-get install -y libi2c-dev i2c-tools
@@ -233,19 +246,52 @@ Activer le bus I2C :
 ```bash
 sudo modprobe i2c-dev
 echo "i2c-dev" | sudo tee -a /etc/modules
-sudo nano /boot/config.txt   # Ajouter la ligne : dtparam=i2c_arm=on
+sudo nano /boot/config.txt
+# Ajouter ou décommenter : dtparam=i2c_arm=on
 sudo reboot
 ```
 
-Vérifier que le capteur SHT20 est bien détecté après redémarrage :
+Vérification après redémarrage :
 ```bash
-sudo i2cdetect -y 1
-# Le capteur doit apparaître à l'adresse 0x40
+ls /dev/i2c*          # Doit afficher /dev/i2c-1
+sudo i2cdetect -y 1   # 0x40 doit apparaître
 ```
 
 ---
 
-### Récapitulatif des dépendances
+### Étape 5 — Support SPI (requis pour le TC72)
+
+```bash
+sudo nano /boot/config.txt
+# Ajouter ou décommenter : dtparam=spi=on
+sudo reboot
+```
+
+Vérification :
+```bash
+ls /dev/spi*   # Doit afficher /dev/spidev0.0 et /dev/spidev0.1
+```
+
+---
+
+### Étape 6 — Support RS232 / UART (requis pour S6)
+
+```bash
+sudo nano /boot/config.txt
+# Ajouter :
+# enable_uart=1
+# dtoverlay=disable-bt
+sudo reboot
+```
+
+Vérification :
+```bash
+ls /dev/serial*   # Doit afficher /dev/serial0 → /dev/ttyAMA0
+```
+
+---
+
+### Récapitulatif dépendances — Pi 3
 
 | Paquet | Obligatoire | À partir de | Rôle |
 |--------|-------------|-------------|------|
@@ -254,8 +300,148 @@ sudo i2cdetect -y 1
 | `git` | ✅ | S1 | Cloner le dépôt |
 | `qt5-default` + `qtbase5-dev` | ✅ | S1 | Qt5 |
 | `libqt5widgets5` | ✅ | S1 | Affichage fenêtres |
+| `libqt5serialport5-dev` | ✅ | S6 | QSerialPort RS232 |
 | `libi2c-dev` | ✅ | S5 | Communication I2C |
-| `i2c-tools` | ⚙️ Recommandé | S5 | Vérifier le capteur (`i2cdetect`) |
+| `i2c-tools` | ⚙️ Recommandé | S5 | Vérifier les composants I2C |
+
+---
+
+## Installation sur Raspberry Pi 5
+
+> La Pi 5 utilise **Raspberry Pi OS Bookworm** et présente plusieurs différences importantes par rapport à la Pi 3. Lire cette section attentivement avant de commencer.
+
+### ⚠️ Différences clés Pi 5 vs Pi 3
+
+| Point | Raspberry Pi 3 | Raspberry Pi 5 |
+|-------|----------------|----------------|
+| Fichier config | `/boot/config.txt` | `/boot/firmware/config.txt` |
+| GPIO sysfs | ✅ Fonctionne | ❌ Supprimé → utiliser `libgpiod` |
+| Qt5 | `qt5-default` | `qtbase5-dev` (paquet renommé) |
+| I2C | `/dev/i2c-1` | `/dev/i2c-1` (identique ✅) |
+| SPI | `/dev/spidev0.0` | `/dev/spidev0.0` (identique ✅) |
+| UART | `/dev/ttyAMA0` | `/dev/ttyAMA0` (identique ✅) |
+
+---
+
+### Étape 1 — Mettre à jour le système
+
+```bash
+sudo apt update
+sudo apt upgrade -y
+```
+
+---
+
+### Étape 2 — Outils de compilation
+
+```bash
+sudo apt install -y build-essential cmake git
+```
+
+---
+
+### Étape 3 — Installer Qt5 (syntaxe Bookworm)
+
+```bash
+# qt5-default n'existe plus sur Bookworm → remplacé par :
+sudo apt install -y qtbase5-dev qtbase5-dev-tools qt5-qmake
+sudo apt install -y libqt5widgets5 libqt5gui5 libqt5core5a
+sudo apt install -y libqt5serialport5-dev   # Module RS232 (S6)
+```
+
+Vérification :
+```bash
+qmake --version
+```
+
+---
+
+### Étape 4 — Support I2C
+
+```bash
+sudo apt install -y libi2c-dev i2c-tools
+sudo modprobe i2c-dev
+echo "i2c-dev" | sudo tee -a /etc/modules
+
+# ⚠️ Chemin différent sur Pi 5 !
+sudo nano /boot/firmware/config.txt
+# Ajouter : dtparam=i2c_arm=on
+sudo reboot
+```
+
+Vérification :
+```bash
+ls /dev/i2c*
+sudo i2cdetect -y 1   # 0x40 doit apparaître
+```
+
+---
+
+### Étape 5 — Support SPI
+
+```bash
+sudo nano /boot/firmware/config.txt
+# Ajouter : dtparam=spi=on
+sudo reboot
+```
+
+Vérification :
+```bash
+ls /dev/spi*
+```
+
+---
+
+### Étape 6 — Support RS232 / UART
+
+```bash
+sudo nano /boot/firmware/config.txt
+# Ajouter :
+# enable_uart=1
+# dtoverlay=disable-bt
+sudo reboot
+```
+
+Vérification :
+```bash
+ls /dev/serial*
+```
+
+---
+
+### Étape 7 — GPIO sur Pi 5 (libgpiod — remplace sysfs) 🦝
+
+Sur Pi 5, le sysfs GPIO (`/sys/class/gpio/`) est supprimé. Il faut utiliser `libgpiod` :
+
+```bash
+sudo apt install -y libgpiod-dev gpiod
+```
+
+Vérification :
+```bash
+gpiodetect
+# Doit afficher : gpiochip0 [pinctrl-rp1] (54 lines)
+
+gpioget gpiochip0 22   # Lire l'état de la broche GPIO22
+```
+
+> ⚠️ La classe `CGpio` du projet utilise sysfs et devra être adaptée pour la Pi 5.
+> Voir la section résolution des problèmes pour les détails.
+
+---
+
+### Récapitulatif dépendances — Pi 5
+
+| Paquet | Obligatoire | À partir de | Rôle |
+|--------|-------------|-------------|------|
+| `build-essential` | ✅ | S1 | Compilateur C++ |
+| `cmake` ≥ 3.16 | ✅ | S1 | Système de build |
+| `git` | ✅ | S1 | Cloner le dépôt |
+| `qtbase5-dev` + `qt5-qmake` | ✅ | S1 | Qt5 (syntaxe Bookworm) |
+| `libqt5serialport5-dev` | ✅ | S6 | QSerialPort RS232 |
+| `libi2c-dev` | ✅ | S5 | Communication I2C |
+| `i2c-tools` | ⚙️ Recommandé | S5 | Vérifier les composants I2C |
+| `libgpiod-dev` + `gpiod` | ✅ | S4 | GPIO (remplace sysfs) |
 
 ---
 
@@ -314,7 +500,7 @@ cmake .. && make
 
 ---
 
-### Semaine 4 — GPIO
+### Semaine 4 — GPIO / LED du shield
 
 ```bash
 git checkout Semaine_4
@@ -324,22 +510,22 @@ sudo ./appGpio
 ```
 
 **Utilisation :**
-1. Sélectionner la broche **22** dans la liste déroulante
+1. Sélectionner la broche **22** dans la liste (correspond à la LED D1 du shield)
 2. Cliquer **Activer** — la broche GPIO est initialisée
-3. Cliquer **Allumer / Eteindre** — la LED physique répond
+3. Cliquer **Allumer / Eteindre** — la LED D1 physique répond
 
 **Test manuel du câblage avant de lancer :**
 ```bash
 echo "22" | sudo tee /sys/class/gpio/export
 echo "out" | sudo tee /sys/class/gpio/gpio22/direction
-echo "1" | sudo tee /sys/class/gpio/gpio22/value    # Allume
-echo "0" | sudo tee /sys/class/gpio/gpio22/value    # Eteint
+echo "1" | sudo tee /sys/class/gpio/gpio22/value    # Allume D1
+echo "0" | sudo tee /sys/class/gpio/gpio22/value    # Eteint D1
 echo "22" | sudo tee /sys/class/gpio/unexport
 ```
 
 ---
 
-### Semaine 5 — Capteur SHT20
+### Semaine 5 — Capteur SHT20 du shield
 
 ```bash
 git checkout Semaine_5
@@ -348,28 +534,42 @@ cmake .. && make
 sudo ./appS5_v3
 ```
 
+**Avant de lancer — vérifier la détection du capteur :**
+```bash
+sudo i2cdetect -y 1
+# Le SHT20 du shield doit apparaître à 0x40
+# 4 autres adresses → afficheur LCD du shield
+```
+
 **Utilisation :**
-1. Vérifier que le capteur est détecté : `sudo i2cdetect -y 1` → doit afficher `40`
-2. Régler les seuils **Min** et **Max** de température dans les champs IHM
-3. Cliquer **Activer GPIO** puis **Demarrer acquisition**
-4. La LED se commande automatiquement selon la température mesurée
+1. Régler les seuils **Min** et **Max** de température
+2. Cliquer **Activer GPIO** puis **Demarrer acquisition**
+3. La LED D1 du shield se commande automatiquement selon la température
 
 ---
 
-### Semaine 6 — TCP + CSV
+### Semaine 6 — TCP + RS232 + CSV
 
 ```bash
 git checkout Semaine_6
 mkdir -p build && cd build
 cmake .. && make
-sudo ./appS6_v1
+sudo ./appS6_v2
 ```
 
-**Utilisation :**
-1. Renseigner l'**IP** du serveur TCP et le **Port** (modifiables sans redémarrer)
-2. Cliquer **Connecter** — le statut passe en vert si le serveur répond
-3. Cliquer **Activer GPIO** puis **Demarrer acquisition**
-4. Les données sont envoyées via TCP **et** enregistrées en CSV automatiquement
+**Utilisation TCP :**
+1. Renseigner l'**IP** du serveur et le **Port** (modifiables sans redémarrer)
+2. Cliquer **Connecter TCP**
+
+**Utilisation RS232 (port DB9 du shield) :**
+1. Cliquer **Rafraichir** pour détecter les ports disponibles
+2. Sélectionner `/dev/ttyAMA0` et la vitesse `9600`
+3. Cliquer **Ouvrir port serie**
+4. Brancher un câble DB9 vers un PC avec PuTTY en mode Serial
+
+**Lancer l'acquisition :**
+1. Cliquer **Activer GPIO** puis **Demarrer acquisition**
+2. Les données sont envoyées sur TCP ET RS232 ET enregistrées en CSV
 
 **Trouver l'IP de la Raspberry :**
 ```bash
@@ -377,14 +577,14 @@ hostname -I
 # ex : 192.168.1.42
 ```
 
-**Lancer un serveur TCP de test sur un PC :**
+**Serveur TCP de test sur un PC :**
 ```bash
 ncat -l 12345
 # ou
 nc -l -p 12345
 ```
 
-**Trouver le fichier CSV généré :**
+**Trouver le fichier CSV :**
 ```bash
 ls ~/rasberry_pi_ciel/build/data_*.csv
 ```
@@ -397,10 +597,19 @@ ls ~/rasberry_pi_ciel/build/data_*.csv
 
 ```bash
 export DISPLAY=:0
-sudo ./appS6_v1
+sudo ./appS6_v2
 ```
 
-Lance toujours l'application depuis le bureau graphique de Kali Linux.
+Lance toujours l'application depuis le bureau graphique.
+
+---
+
+### LED jaune D2 du shield ne s'allume pas
+
+La carte n'est pas alimentée correctement. Vérifier dans l'ordre :
+1. La nappe est bien branchée (fil rouge côté broche 1)
+2. La Raspberry est bien sous tension
+3. La nappe est bien enfichée des deux côtés
 
 ---
 
@@ -408,16 +617,7 @@ Lance toujours l'application depuis le bureau graphique de Kali Linux.
 
 ```bash
 sudo chmod -R 777 /sys/class/gpio/
-sudo ./appS6_v1
-```
-
----
-
-### "could not find Qt5" lors du cmake
-
-```bash
-sudo apt-get install -y qt5-default qtbase5-dev
-cmake ..
+sudo ./appS6_v2
 ```
 
 ---
@@ -427,41 +627,77 @@ cmake ..
 La broche est déjà exportée d'une session précédente :
 ```bash
 echo "22" | sudo tee /sys/class/gpio/unexport
-sudo ./appS6_v1
+sudo ./appS6_v2
 ```
 
 ---
 
-### La LED ne s'allume pas
-
-Vérifier dans l'ordre :
-1. Le câblage — résistance bien branchée, longue patte LED côté GPIO
-2. La broche sélectionnée dans l'IHM correspond à celle câblée physiquement
-3. Tester manuellement avec les commandes `echo` de la section Semaine 4
-4. Vérifier que l'application est lancée avec `sudo`
-
----
-
-### Le capteur SHT20 n'est pas détecté
+### Le capteur SHT20 n'est pas détecté à 0x40
 
 ```bash
 sudo i2cdetect -y 1
 ```
 
 Si `0x40` n'apparaît pas :
-1. Vérifier le câblage SDA (broche 3) et SCL (broche 5)
+1. Vérifier que la nappe est correctement branchée (sens du fil rouge)
 2. Vérifier que I2C est activé : `ls /dev/i2c*` doit retourner `/dev/i2c-1`
 3. Si absent : `sudo modprobe i2c-dev` puis réessayer
-4. Vérifier que `dtparam=i2c_arm=on` est dans `/boot/config.txt`
+4. Vérifier que l'afficheur LCD est bien connecté au shield (câble grove) — il fournit les résistances pull-up du bus I2C
+5. **Pi 3 :** vérifier `dtparam=i2c_arm=on` dans `/boot/config.txt`
+6. **Pi 5 :** vérifier `dtparam=i2c_arm=on` dans `/boot/firmware/config.txt`
+
+---
+
+### GPIO ne fonctionne pas sur Raspberry Pi 5
+
+Sur Pi 5, sysfs GPIO est supprimé. La classe `CGpio` doit être adaptée :
+
+```bash
+# Tester manuellement avec libgpiod
+gpioset gpiochip0 22=1   # Allume la LED D1
+gpioset gpiochip0 22=0   # Eteint la LED D1
+```
+
+La réécriture de `CGpio` avec `libgpiod` est prévue en S7.
+
+---
+
+### "could not find Qt5" lors du cmake
+
+**Pi 3 :**
+```bash
+sudo apt-get install -y qt5-default qtbase5-dev
+cmake ..
+```
+
+**Pi 5 (Bookworm) :**
+```bash
+sudo apt install -y qtbase5-dev qtbase5-dev-tools qt5-qmake
+cmake ..
+```
 
 ---
 
 ### Erreur TCP "Connection timed out"
 
-1. Vérifier que le serveur TCP tourne bien sur la machine cible
-2. Vérifier l'IP et le port saisis dans l'IHM
+1. Vérifier que le serveur TCP tourne sur la machine cible
+2. Vérifier l'IP et le port dans l'IHM
 3. Vérifier que les deux machines sont sur le même réseau : `ping <ip_du_serveur>`
-4. Pour tester en local sur la Raspberry : utiliser `127.0.0.1` comme IP
+4. Pour tester en local : utiliser `127.0.0.1` comme IP
+
+---
+
+### Port RS232 introuvable dans la liste
+
+```bash
+ls /dev/tty*
+# Chercher /dev/ttyAMA0 ou /dev/ttyS0
+```
+
+Si absent :
+1. Vérifier `enable_uart=1` dans le fichier config
+2. `sudo modprobe uart` puis réessayer
+3. Cliquer **Rafraichir** dans l'IHM pour rescanner les ports
 
 ---
 
@@ -470,7 +706,7 @@ Si `0x40` n'apparaît pas :
 ```bash
 cd ~/rasberry_pi_ciel/build
 make
-sudo ./appS6_v1
+sudo ./appS6_v2
 ```
 
 ---
@@ -484,4 +720,8 @@ sudo apt-get update --fix-missing
 
 ---
 
-*BTS CIEL — 2025/2026*
+*BTS CIEL — 2025/2026* 🦝
+
+---
+
+> *Ce projet a été réalisé avec l'aide de l'IA Claude (Anthropic) pour la génération et l'amélioration du code, la rédaction de la documentation et le débogage. Les propositions ont été relues, comprises et validées à chaque étape.*

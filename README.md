@@ -99,7 +99,7 @@ date;heure;temperature_c;humidite_pct;etat_led
 
 Le shield est une carte PCB conçue et soudée en cours. Elle se connecte directement sur le connecteur GPIO 40 broches de la Raspberry Pi via une nappe 26 fils.
 
-### Composants du shield
+### [Composants du shield](https://raccoon-0verflow.github.io/projet-qt/))
 
 | Référence | Composant | Protocole | Rôle | Utilisé en |
 |-----------|-----------|-----------|------|------------|
